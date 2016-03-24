@@ -22,6 +22,8 @@ set(tests
         test_stream_empty
         test_stream_disconnect
         test_disconnect_inproc
+        test_unbind_inproc
+        test_unbind_wildcard
         test_ctx_options
         test_ctx_destroy
         test_security_null
@@ -54,6 +56,7 @@ if(NOT WIN32)
           test_proxy
           test_proxy_single_socket
           test_proxy_terminate
+          test_getsockopt_memset
           test_filter_ipc
   )
   if(HAVE_FORK)

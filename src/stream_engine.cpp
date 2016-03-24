@@ -654,7 +654,7 @@ bool zmq::stream_engine_t::handshake ()
                     plain_client_t (options);
             alloc_assert (mechanism);
         }
-#ifdef HAVE_LIBSODIUM
+#ifdef ZMQ_HAVE_CURVE
         else
         if (options.mechanism == ZMQ_CURVE
         &&  memcmp (greeting_recv + 12, "CURVE\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 20) == 0) {
@@ -842,7 +842,7 @@ int zmq::stream_engine_t::push_msg_to_session (msg_t *msg_)
 }
 
 int zmq::stream_engine_t::push_raw_msg_to_session (msg_t *msg_) {
-    if (metadata)
+    if (metadata && metadata != msg_->metadata())
         msg_->set_metadata(metadata);
     return push_msg_to_session(msg_);
 }

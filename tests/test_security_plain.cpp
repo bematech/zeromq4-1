@@ -164,7 +164,11 @@ int main (void)
 
     ip4addr.sin_family = AF_INET;
     ip4addr.sin_port = htons (9998);
-    inet_pton (AF_INET, "127.0.0.1", &ip4addr.sin_addr);
+#if (ZMQ_HAVE_WINDOWS and _WIN32_WINNT < 0x0600)
+    ip4addr.sin_addr.s_addr = inet_addr ("127.0.0.1");
+#else
+     inet_pton(AF_INET, "127.0.0.1", &ip4addr.sin_addr);
+#endif
 
     s = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
     rc = connect (s, (struct sockaddr*) &ip4addr, sizeof (ip4addr));
@@ -173,7 +177,7 @@ int main (void)
     send (s, "\x01\x00", 2, 0);
     // send sneaky message that shouldn't be received
     send (s, "\x08\x00sneaky\0", 9, 0);
-    int timeout = 150;
+    int timeout = 250;
     zmq_setsockopt (server, ZMQ_RCVTIMEO, &timeout, sizeof (timeout));
     char *buf = s_recv (server);
     if (buf != NULL) {

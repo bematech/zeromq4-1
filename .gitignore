@@ -52,6 +52,8 @@ test_immediate
 test_term_endpoint
 test_router_mandatory
 test_disconnect_inproc
+test_unbind_inproc
+test_unbind_wildcard
 test_raw_sock
 test_disconnect_inproc
 test_ctx_options
@@ -74,6 +76,7 @@ test_linger
 test_security_null
 test_security_plain
 test_proxy
+test_proxy_single_socket
 test_proxy_terminate
 test_abstract_ipc
 test_filter_ipc
@@ -99,6 +102,7 @@ test_capabilities
 test_hwm_pubsub
 test_router_mandatory_hwm
 test_xpub_nodrop
+test_getsockopt_memset
 test*.log
 test*.trs
 src/platform.hpp*

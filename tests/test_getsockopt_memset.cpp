@@ -27,39 +27,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ZMQ_POLLER_HPP_INCLUDED__
-#define __ZMQ_POLLER_HPP_INCLUDED__
+#include "testutil.hpp"
 
-#include "platform.hpp"
+int main (void)
+{
+    int64_t more;
+    size_t more_size = sizeof(more);
 
-#ifdef ZMQ_HAVE_WINDOWS
-#include "windows.hpp"
-#endif
+    setup_test_environment();
+    void *ctx = zmq_ctx_new ();
+    assert (ctx);
 
-#if   defined ZMQ_USE_KQUEUE  + defined ZMQ_USE_EPOLL \
-    + defined ZMQ_USE_DEVPOLL + defined ZMQ_USE_POLL  \
-    + defined ZMQ_USE_SELECT > 1
-#error More than one of the ZMQ_USE_* macros defined
-#endif
+    void *sb = zmq_socket (ctx, ZMQ_PUB);
+    assert (sb);
+    int rc = zmq_bind (sb, "inproc://a");
+    assert (rc == 0);
 
-#if defined ZMQ_USE_KQUEUE
-#include "kqueue.hpp"
-#elif defined ZMQ_USE_EPOLL
-#include "epoll.hpp"
-#elif defined ZMQ_USE_DEVPOLL
-#include "devpoll.hpp"
-#elif defined ZMQ_USE_POLL
-#include "poll.hpp"
-#elif defined ZMQ_USE_SELECT
-#include "select.hpp"
-#else
-#error None of the ZMQ_USE_* macros defined
-#endif
+    void *sc = zmq_socket (ctx, ZMQ_SUB);
+    assert (sc);
+    rc = zmq_connect (sc, "inproc://a");
+    assert (rc == 0);
 
-#if defined ZMQ_USE_SELECT
-#define ZMQ_POLL_BASED_ON_SELECT
-#else
-#define ZMQ_POLL_BASED_ON_POLL
-#endif
+    memset(&more, 0xFF, sizeof(int64_t));
+    zmq_getsockopt(sc, ZMQ_RCVMORE, &more, &more_size);
+    assert (more_size == sizeof(int));
+    assert (more == 0);
 
-#endif
+
+    // Cleanup
+
+    rc = zmq_close (sc);
+    assert (rc == 0);
+
+    rc = zmq_close (sb);
+    assert (rc == 0);
+
+    rc = zmq_ctx_term (ctx);
+    assert (rc == 0);
+
+    return 0 ;
+}

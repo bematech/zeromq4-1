@@ -232,9 +232,18 @@ libzmq_la_CPPFLAGS =
 libzmq_la_CXXFLAGS = @LIBZMQ_EXTRA_CXXFLAGS@
 libzmq_la_LIBADD =
 
-if HAVE_SODIUM
+if USE_LIBSODIUM
 libzmq_la_CPPFLAGS += ${sodium_CFLAGS}
 libzmq_la_LIBADD += ${sodium_LIBS}
+endif
+
+if USE_TWEETNACL
+libzmq_la_SOURCES += \
+    tweetnacl/src/tweetnacl.c \
+    tweetnacl/contrib/randombytes/devurandom.c
+libzmq_la_CXXFLAGS += \
+    -I$(top_builddir)/tweetnacl/contrib/randombytes \
+    -I$(top_builddir)/tweetnacl/src
 endif
 
 if HAVE_PGM
@@ -303,6 +312,8 @@ test_apps = \
 	test_stream_disconnect \
 	test_stream_timeout \
 	test_disconnect_inproc \
+	test_unbind_inproc \
+	test_unbind_wildcard \
 	test_ctx_options \
 	test_ctx_destroy \
 	test_security_null \
@@ -322,6 +333,7 @@ test_apps = \
 	test_proxy \
 	test_proxy_single_socket \
 	test_proxy_terminate \
+	test_getsockopt_memset \
 	test_many_sockets \
 	test_ipc_wildcard \
 	test_diffserv \
@@ -417,6 +429,12 @@ test_stream_disconnect_LDADD = libzmq.la
 test_disconnect_inproc_SOURCES = tests/test_disconnect_inproc.cpp
 test_disconnect_inproc_LDADD = libzmq.la
 
+test_unbind_inproc_SOURCES = tests/test_unbind_inproc.cpp
+test_unbind_inproc_LDADD = libzmq.la
+
+test_unbind_wildcard_SOURCES = tests/test_unbind_wildcard.cpp
+test_unbind_wildcard_LDADD = libzmq.la
+
 test_ctx_options_SOURCES = tests/test_ctx_options.cpp
 test_ctx_options_LDADD = libzmq.la
 
@@ -473,6 +491,9 @@ test_proxy_single_socket_LDADD = libzmq.la
 
 test_proxy_terminate_SOURCES = tests/test_proxy_terminate.cpp
 test_proxy_terminate_LDADD = libzmq.la
+
+test_getsockopt_memset_SOURCES = tests/test_getsockopt_memset.cpp
+test_getsockopt_memset_LDADD = libzmq.la
 
 test_many_sockets_SOURCES = tests/test_many_sockets.cpp
 test_many_sockets_LDADD = libzmq.la
@@ -596,6 +617,7 @@ EXTRA_DIST = \
 	MAINTAINERS	\
 	src/libzmq.pc.cmake.in \
 	src/libzmq.vers \
+	tweetnacl \
 	tools/curve_keygen.cpp
 
 MAINTAINERCLEANFILES = \
